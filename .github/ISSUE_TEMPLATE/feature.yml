@@ -1,0 +1,14 @@
+name: Feature request
+description: New detector, dataset, or CLI flag
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: ask
+    attributes:
+      label: What do you want?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why

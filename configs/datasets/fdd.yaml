@@ -1,0 +1,16 @@
+# FDD (Foggy Drone Dataset) — single class `drone`.
+# Set ANTIUAVDET_DATA to the parent folder that contains `FDD/`.
+name: fdd
+class_name: drone
+category_id: 0
+img_size: [768, 1344]
+keep_ratio: false
+test_images: 1150
+layout:
+  root: FDD
+  train_images: train/foggy
+  val_images: val/foggy
+  test_images: test/foggy
+  train_ann: annotations/instances_foggy_train.json
+  val_ann: annotations/instances_foggy_val.json
+  test_ann: annotations/instances_foggy_test.json

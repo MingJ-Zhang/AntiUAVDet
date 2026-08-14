@@ -1,0 +1,50 @@
+# ===== weights & binaries (never commit) =====
+*.pth
+*.pt
+*.ckpt
+*.pth.tar
+*.onnx
+*.engine
+*.trt
+*.bin
+*.safetensors
+weights/**
+!weights/.gitkeep
+!weights/README.md
+
+# ===== training / eval caches =====
+**/work_dirs/
+**/runs/
+**/outputs/
+**/logs/
+**/wandb/
+**/mlruns/
+**/predictions/
+**/metrics/
+.cache/
+_extract_copy.py
+_fix_frfdet_and_sanitize.py
+
+# ===== python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# ===== local-only =====
+configs/local.yaml
+data/views/
+_extract_copy.py

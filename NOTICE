@@ -1,0 +1,39 @@
+AntiUAVDet
+Copyright 2026 AntiUAVDet contributors
+
+This product includes original glue code (the `antiuavdet` package, CLI,
+evaluation adapters, and documentation) released under Apache-2.0.
+
+It also redistributes third-party detector implementations. Each tree under
+`models/` retains its original license and copyright. In particular:
+
+  - MMDetection-based configs (`models/mmdet_baselines/`)
+    Apache-2.0, OpenMMLab / MMDetection authors
+    https://github.com/open-mmlab/mmdetection
+
+  - RemDet (`models/remdet/`)
+    Apache-2.0, RemDet authors
+    https://github.com/oaitech/RemDet
+
+  - RT-DETR (`models/rtdetr/`)
+    Apache-2.0, lyuwenyu / Baidu
+    https://github.com/lyuwenyu/RT-DETR
+
+  - D-FINE (`models/dfine/`)
+    Apache-2.0, Peterande et al.
+    https://github.com/Peterande/D-FINE
+
+  - DEIMv2 / AoDE-DEIM (`models/deimv2/`, `models/aode_deim/`)
+    Apache-2.0, Intellindust / DEIM authors
+    https://github.com/Intellindust/DEIM
+
+  - Ultralytics-based forks (`models/uavdetr/`, `models/frfdet/`,
+    `models/dqef/`, `models/yolo/third_party/`)
+    AGPL-3.0, Ultralytics and respective fork authors
+    https://github.com/ultralytics/ultralytics
+
+If you redistribute a combined binary that links the AGPL-3.0 trees, the
+AGPL terms apply to that combined work. The Apache-2.0 glue code remains
+separable as described in Apache License section 1 ("Derivative Works").
+
+See each `models/*/LICENSE` for the full third-party text.

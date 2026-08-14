@@ -1,0 +1,7 @@
+path: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View
+train: lists/train.txt
+val: lists/val.txt
+test: lists/test.txt
+names:
+  0: drone
+nc: 1

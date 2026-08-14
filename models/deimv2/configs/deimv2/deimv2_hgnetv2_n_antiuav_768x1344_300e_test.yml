@@ -1,0 +1,17 @@
+__include__: [
+  './deimv2_hgnetv2_n_antiuav_768x1344_300e_gpu1.yml'
+]
+
+# Held-out Anti-UAV test evaluation for the completed 300-epoch run.
+# Training settings are inherited unchanged; only evaluation data/output differ.
+output_dir: ./outputs/deimv2_hgnetv2_n_antiuav_768x1344_300e_gpu1/test_eval_fp32
+
+val_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/test/test/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_test.json
+    transforms:
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}

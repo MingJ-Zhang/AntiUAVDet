@@ -1,0 +1,210 @@
+__include__: [
+  '../dataset/fdd_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2.yml'
+]
+
+# Controlled comparison against DEIMv2-N on FDD foggy. Detector capacity,
+# initialization, optimization, augmentation schedule, and evaluation settings
+# match configs/deimv2/deimv2_hgnetv2_n_fdd_foggy.yml in DEIMv2-main.
+output_dir: ./outputs/aode_deim_hgnetv2_n_fdd_aligned_gpu0
+print_freq: 20
+eval_spatial_size: [640, 640]
+num_classes: 1
+remap_mscoco_category: False
+
+DEIM:
+  # AoDE/FDD method variables retained for the ablation.
+  use_visibility_prior: True
+  use_counterfactual_fog: True
+  cfc_probability: 0.65
+  cfc_start_epoch: 5
+  cfc_stop_epoch: 145
+  cfc_beta_range: [0.035, 0.11]
+  cfc_airlight_range: [0.68, 0.92]
+  cfc_nonuniform_range: [0.10, 0.35]
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_stem_only: True
+  freeze_norm: False
+  pretrained: False
+  local_model_dir: ./weight/hgnetv2/
+  use_lab: True
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+  expansion: 0.34
+  depth_mult: 0.5
+  version: 'dfine'
+  csp_type: csp2
+  fuse_op: sum
+
+  # Method variable: spatial Age-of-Detection-Evidence recovery.
+  use_spatial_aode: True
+  return_evidence_state: True
+  aode_levels: 2
+  aode_iterations: 2
+  aode_memory: 0.70
+  aode_trust_floor: 0.05
+  aode_budget_min: 0.02
+  aode_budget_max: [0.18, 0.10]
+  aode_residual_scale: 0.50
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_layers: 3
+  eval_idx: -1
+  num_queries: 300
+  num_points: [6, 6]
+  dim_feedforward: 512
+  activation: silu
+  mlp_act: silu
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+
+  # Method variables: visibility-aware denoising and query AoDE.
+  visibility_adaptive_denoising: True
+  visibility_noise_gain: 1.0
+  use_query_aode: True
+  query_aode_memory: 0.70
+  query_trust_floor: 0.05
+  query_budget_min: 0.02
+  query_budget_max: [0.16, 0.12, 0.08]
+  query_residual_scale: 0.35
+  # Suppress geometry/entropy evidence from confident background queries.
+  query_relevance_power: 1.0
+
+PostProcessor:
+  num_top_queries: 300
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0002
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0002
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+  lr: 0.0004
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+ema:
+  decay: 0.99995
+  warmups: 2000
+
+lr_warmup_scheduler:
+  warmup_duration: 1000
+
+warmup_iter: 2000
+epoches: 160
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+train_dataloader:
+  total_batch_size: 16
+  num_workers: 4
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/train/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_train.json
+    transforms:
+      ops:
+        - {type: Mosaic, output_size: 320, rotation_range: 10, translation_range: [0.1, 0.1], scaling_range: [0.5, 1.5], probability: 1.0, fill_value: 0, use_cache: True, max_cached_images: 50, random_pop: True}
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [640, 640]}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        epoch: [4, 78, 148]
+        ops: ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+      mosaic_prob: 0.5
+  collate_fn:
+    ema_restart_decay: 0.99995
+    base_size_repeat: ~
+    mixup_prob: 0.5
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    # Keep tiny drones in the CopyBlend pool. FDD contains many targets
+    # below 100 pixels, so the previous threshold removed the core samples.
+    area_threshold: 4
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+    # Method variable: same CopyBlend probability/schedule, fog-aware blending.
+    copyblend_type: fog_consistent
+    conflict_with_mixup: False
+    random_num_objects: True
+    fog_copy_feather: 2
+    fog_copy_vertical_jitter: 0.18
+    fog_copy_min_visibility: 0.05
+
+val_dataloader:
+  total_batch_size: 16
+  num_workers: 4
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/val/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_val.json
+    transforms:
+      ops:
+        - {type: Resize, size: [640, 640]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1.0, loss_bbox: 5.0, loss_giou: 2.0, loss_fgl: 0.15, loss_ddf: 1.5}
+  losses: ['mal', 'boxes', 'local']
+  gamma: 1.5
+  alpha: 0.75
+  reg_max: 32
+
+  # Method variable: counterfactual fog consistency.
+  use_cfc: True
+  cfc_det_weight: 0.50
+  cfc_pred_weight: 0.50
+  cfc_traj_weight: 0.25
+  cfc_state_weight: 0.15
+  cfc_margin: 0.01
+  cfc_conf_threshold: 0.20
+
+  # Method variable: visibility-calibrated MAL/matching.
+  visibility_aware: True
+  visibility_geo_tau: 0.35
+
+  matcher:
+    type: HungarianMatcher
+    weight_dict: {cost_class: 2.0, cost_bbox: 5.0, cost_giou: 2.0}
+    alpha: 0.25
+    gamma: 2.0
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136
+    visibility_aware: True
+    visibility_cls_floor: 0.35
+    visibility_geo_gain: 1.0
+    visibility_geo_tau: 0.35

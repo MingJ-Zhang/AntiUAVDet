@@ -1,0 +1,6 @@
+# Official RT-DETR (PyTorch).
+-r common.txt
+torch==2.0.1
+torchvision
+scipy
+pyyaml

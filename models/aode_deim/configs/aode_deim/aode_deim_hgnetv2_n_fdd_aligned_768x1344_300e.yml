@@ -1,0 +1,60 @@
+__include__: [
+  './aode_deim_hgnetv2_n_fdd_aligned_gpu0.yml'
+]
+
+# Strict high-resolution comparison profile.
+# Generic detector capacity, optimization, augmentation phases, and evaluation
+# settings follow the DEIMv2-N FDD 768x1344/300-epoch baseline. AoDE, CFC, and
+# visibility-aware training remain the method variables.
+output_dir: ./outputs/aode_deim_hgnetv2_n_fdd_fixed_768x1344_300e
+eval_spatial_size: [768, 1344]  # [height, width]
+
+epoches: 300
+no_aug_epoch: 23
+
+DEIM:
+  # Preserve the 145/160 CFC stop ratio in the 300-epoch schedule.
+  cfc_stop_epoch: 272
+  # Decoder box-distribution refinement is numerically sensitive in float16.
+  # Keep the decoder/query-AoDE path in fp32 while retaining AMP upstream.
+  force_decoder_fp32: True
+
+train_dataloader:
+  total_batch_size: 16
+  dataset:
+    transforms:
+      ops:
+        # Half-resolution tiles produce the final 768x1344 Mosaic canvas.
+        - {type: Mosaic, output_size: [384, 672], rotation_range: 10, translation_range: [0.1, 0.1], scaling_range: [0.5, 1.5], probability: 1.0, fill_value: 0, use_cache: True, max_cached_images: 50, random_pop: True}
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [768, 1344]}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        epoch: [4, 146, 278]
+        ops: ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+      mosaic_prob: 0.5
+  collate_fn:
+    mixup_epochs: [4, 146]
+    copyblend_epochs: [4, 146]
+    stop_epoch: 278
+    # Keep the same fixed object count as the DEIMv2 baseline; fog-consistent
+    # blending and the tiny-object threshold remain AoDE method variables.
+    random_num_objects: False
+
+val_dataloader:
+  total_batch_size: 16
+  dataset:
+    transforms:
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+
+DEIMCriterion:
+  matcher:
+    matcher_change_epoch: 255

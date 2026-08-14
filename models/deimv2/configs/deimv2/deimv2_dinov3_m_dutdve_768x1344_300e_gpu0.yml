@@ -1,0 +1,25 @@
+__include__: [
+  './deimv2_dinov3_m_antiuav_768x1344_300e_gpu0.yml'
+]
+
+# DEIMv2-M (ViT-Tiny+ distilled from DINOv3-S) on DUT-Dve (drone, single class).
+# Identical training recipe to the Anti-UAV run; only the dataset differs.
+output_dir: ./outputs/deimv2_dinov3_m_dutdve_768x1344_300e_gpu0
+
+num_classes: 1
+remap_mscoco_category: False
+
+DINOv3STAs:
+  weights_path: ~
+
+train_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/train
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_train2017.json
+
+val_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/val
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_val2017.json

@@ -1,0 +1,63 @@
+__include__: [
+  './rtdetr_r50vd_6x_coco.yml',
+]
+
+output_dir: ./RT-DETR/outputs/rtdetr_r50vd_300e_antiuav_768x1344
+
+num_classes: 1
+remap_mscoco_category: False
+epoches: 300
+checkpoint_step: 1
+log_step: 20
+use_amp: True
+accumulation_steps: 8
+
+RTDETR:
+  multi_scale: ~
+
+PResNet:
+  pretrained: True
+
+HybridEncoder:
+  eval_spatial_size: [768, 1344]
+
+RTDETRTransformer:
+  eval_spatial_size: [768, 1344]
+
+train_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/train/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_train.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops:
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [768, 1344]}
+        - {type: ToImageTensor}
+        - {type: ConvertDtype}
+        - {type: SanitizeBoundingBox, min_size: 1}
+        - {type: ConvertBox, out_fmt: 'cxcywh', normalize: True}
+  batch_size: 2
+  num_workers: 8
+  drop_last: True
+  collate_fn: default_collate_fn
+
+val_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/val/val/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_val.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ToImageTensor}
+        - {type: ConvertDtype}
+  batch_size: 1
+  num_workers: 8
+  drop_last: False
+  collate_fn: default_collate_fn

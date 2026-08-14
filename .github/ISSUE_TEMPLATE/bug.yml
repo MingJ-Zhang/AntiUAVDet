@@ -1,0 +1,26 @@
+name: Bug report
+description: Something does not run or metrics look wrong
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Please search existing issues first.
+  - type: input
+    id: model
+    attributes:
+      label: Model id
+      placeholder: dfine / rtmdet / aode-deim ...
+    validations:
+      required: true
+  - type: dropdown
+    id: dataset
+    attributes:
+      label: Dataset
+      options: [fdd, antiuav, dut_dve, other]
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Exact command, env (`conda list` snippet), and traceback.
+    validations:
+      required: true

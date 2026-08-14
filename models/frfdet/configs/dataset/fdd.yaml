@@ -1,0 +1,8 @@
+path: ${ANTIUAVDET_DATA}/FDD_YOLO
+train: lists/train.txt
+val: lists/val.txt
+test: lists/test.txt
+names:
+  0: drone
+nc: 1
+

@@ -1,0 +1,18 @@
+# AntiUAV — single class `UAV`. Nested val/val/img and test/test/img layout.
+name: antiuav
+class_name: UAV
+category_id: 0
+img_size: [768, 1344]
+keep_ratio: false
+test_images: 2200
+notes: >
+  A few test frames have noisy target-board labels. Verify frames before
+  publishing qualitative figures.
+layout:
+  root: antiuav
+  train_images: train/train/img
+  val_images: val/val/img
+  test_images: test/test/img
+  train_ann: annotations/instances_train.json
+  val_ann: annotations/instances_val.json
+  test_ann: annotations/instances_test.json

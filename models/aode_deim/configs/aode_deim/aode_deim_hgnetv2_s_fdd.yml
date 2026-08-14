@@ -1,0 +1,187 @@
+__include__: [
+  '../dataset/fdd_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2.yml'
+]
+
+output_dir: ./outputs/aode_deim_hgnetv2_s_fdd
+
+# FDD is 1920x1080 and contains many extremely small drones. A 16:9 input
+# preserves aspect ratio and retains more target pixels than 640x640.
+eval_spatial_size: [576, 1024]  # [height, width]
+num_classes: 1
+remap_mscoco_category: False
+
+DEIM:
+  use_visibility_prior: True
+  use_counterfactual_fog: True
+  cfc_probability: 0.65
+  cfc_start_epoch: 5
+  cfc_stop_epoch: 145
+  cfc_beta_range: [0.035, 0.11]
+  cfc_airlight_range: [0.68, 0.92]
+  cfc_nonuniform_range: [0.10, 0.35]
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [1, 2, 3]
+  freeze_at: -1
+  freeze_stem_only: True
+  freeze_norm: False
+  pretrained: True
+  local_model_dir: ./weight/hgnetv2/
+
+HybridEncoder:
+  in_channels: [256, 512, 1024]
+  feat_strides: [8, 16, 32]
+  hidden_dim: 256
+  depth_mult: 0.34
+  expansion: 0.5
+  version: 'dfine'
+  csp_type: csp2
+  fuse_op: sum
+
+  # Innovation 1: spatial Age-of-Detection-Evidence bounded recovery.
+  use_spatial_aode: True
+  return_evidence_state: True
+  aode_levels: 2       # P3 and P4 only
+  aode_iterations: 2
+  aode_memory: 0.70
+  aode_trust_floor: 0.05
+  aode_budget_min: 0.02
+  aode_budget_max: [0.18, 0.10]
+  aode_residual_scale: 0.50
+
+DEIMTransformer:
+  feat_channels: [256, 256, 256]
+  feat_strides: [8, 16, 32]
+  hidden_dim: 256
+  num_levels: 3
+  num_layers: 3
+  eval_idx: -1
+  num_queries: 100
+  num_points: [3, 6, 3]
+  dim_feedforward: 1536
+  activation: silu
+  mlp_act: silu
+
+  # FDD has roughly one target per image. More than 100 queries adds mostly
+  # background competition, while 60 denoising queries are sufficient.
+  num_denoising: 60
+  label_noise_ratio: 0.0
+  box_noise_scale: 0.60
+  visibility_adaptive_denoising: True
+  visibility_noise_gain: 1.00
+
+  # Innovation 1: query-level Age-of-Detection-Evidence scheduling.
+  use_query_aode: True
+  query_aode_memory: 0.70
+  query_trust_floor: 0.05
+  query_budget_min: 0.02
+  query_budget_max: [0.16, 0.12, 0.08]
+  query_residual_scale: 0.35
+
+PostProcessor:
+  num_top_queries: 100
+
+# A small single-class dataset benefits from longer fine-tuning, but CFC doubles
+# the training forward pass. The schedule is conservative for 2x RTX 4090.
+epoches: 160
+flat_epoch: 80
+no_aug_epoch: 15
+checkpoint_freq: 5
+warmup_iter: 1000
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*(?:norm|bn)).*$'
+      lr: 0.00004
+    -
+      params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.0
+  lr: 0.00008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+train_dataloader:
+  total_batch_size: 4
+  num_workers: 8
+  dataset:
+    transforms:
+      ops:
+        - {type: RandomPhotometricDistort, p: 0.30}
+        - {type: SanitizeBoundingBoxes, min_size: 2}
+        - {type: RandomHorizontalFlip, p: 0.5}
+        - {type: Resize, size: [576, 1024]}
+        - {type: SanitizeBoundingBoxes, min_size: 2}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        epoch: [5, 80, 145]
+        ops: ['RandomPhotometricDistort']
+  collate_fn:
+    base_size: 1024
+    base_size_repeat: ~
+    stop_epoch: 145
+    ema_restart_decay: 0.9999
+
+    # Innovation 3: fog-consistent Dense O2O CopyBlend.
+    mixup_prob: 0.0
+    copyblend_prob: 0.60
+    copyblend_epochs: [5, 145]
+    copyblend_type: fog_consistent
+    conflict_with_mixup: False
+    area_threshold: 4
+    num_objects: 2
+    random_num_objects: True
+    with_expand: True
+    expand_ratios: [0.05, 0.15]
+    fog_copy_feather: 2
+    fog_copy_vertical_jitter: 0.18
+    fog_copy_min_visibility: 0.05
+
+val_dataloader:
+  total_batch_size: 8
+  num_workers: 8
+  dataset:
+    transforms:
+      ops:
+        - {type: Resize, size: [576, 1024]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1.0, loss_bbox: 5.0, loss_giou: 2.0, loss_fgl: 0.15, loss_ddf: 1.5}
+  losses: ['mal', 'boxes', 'local']
+  gamma: 1.5
+  alpha: 0.75
+  reg_max: 32
+
+  # Innovation 2: counterfactual fog prediction, trajectory, and state consistency.
+  use_cfc: True
+  cfc_det_weight: 0.50
+  cfc_pred_weight: 0.50
+  cfc_traj_weight: 0.25
+  cfc_state_weight: 0.15
+  cfc_margin: 0.01
+  cfc_conf_threshold: 0.20
+
+  # Innovation 3: visibility-calibrated MAL.
+  visibility_aware: True
+  visibility_geo_tau: 0.35
+
+  matcher:
+    type: HungarianMatcher
+    weight_dict: {cost_class: 2.0, cost_bbox: 5.0, cost_giou: 2.0}
+    alpha: 0.25
+    gamma: 2.0
+    change_matcher: True
+    iou_order_alpha: 3.0
+    matcher_change_epoch: 100
+    visibility_aware: True
+    visibility_cls_floor: 0.35
+    visibility_geo_gain: 1.0
+    visibility_geo_tau: 0.35

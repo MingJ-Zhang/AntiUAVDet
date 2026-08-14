@@ -1,0 +1,9 @@
+# 服务器执行 scripts/prepare_dataset_view.py 后，该路径只读映射原始 foggy 数据。
+path: ${ANTIUAVDET_DATA}/FDD_YOLO
+# YOLOv5 会 resolve 目录软链接，清单用于保留 /images/ 路径以正确映射 /labels/。
+train: lists/train.txt
+val: lists/val.txt
+test: lists/test.txt
+names:
+  0: drone
+nc: 1

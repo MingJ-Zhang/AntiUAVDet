@@ -1,0 +1,102 @@
+__include__: [
+  '../../dataset/custom_detection.yml',
+  '../../runtime.yml',
+  '../include/dataloader.yml',
+  '../include/optimizer.yml',
+  '../include/dfine_hgnetv2.yml',
+]
+
+# Fair single-class comparison protocol shared with RemDet.
+output_dir: ./D-FINE/outputs/dfine_hgnetv2_n_antiuav_768x1344_300e
+eval_spatial_size: [768, 1344]
+num_classes: 1
+remap_mscoco_category: False
+epochs: 300
+print_freq: 20
+checkpoint_freq: 10
+amp_dtype: bfloat16
+
+DFINE:
+  backbone: HGNetv2
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  use_lab: True
+  pretrained: False
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+  expansion: 0.34
+  depth_mult: 0.5
+
+DFINETransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  dim_feedforward: 512
+  num_levels: 2
+  num_layers: 3
+  eval_idx: -1
+  num_points: [6, 6]
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0004
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+train_dataloader:
+  total_batch_size: 16
+  num_workers: 8
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/train/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_train.json
+    transforms:
+      ops:
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [768, 1344]}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        name: stop_epoch
+        epoch: 278
+        ops: ['RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+  collate_fn:
+    base_size: 1344
+    base_size_repeat: ~
+    stop_epoch: 278
+    ema_restart_decay: 0.9999
+
+val_dataloader:
+  total_batch_size: 4
+  num_workers: 8
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/val/val/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_val.json
+    transforms:
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}

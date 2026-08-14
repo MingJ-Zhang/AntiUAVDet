@@ -1,0 +1,6 @@
+__include__: [
+  './deimv2_hgnetv2_n_antiuav_768x1344_300e_gpu1.yml'
+]
+
+# Independent Anti-UAV training run. Keep the completed seed-0 artifacts intact.
+output_dir: ./outputs/deimv2_hgnetv2_n_antiuav_768x1344_300e_gpu0_seed42

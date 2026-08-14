@@ -1,0 +1,8 @@
+# Common harness deps (CLI + COCO eval). No GPU required.
+numpy<2.0
+pycocotools>=2.0.6
+PyYAML>=6.0
+Pillow>=9.0
+tqdm
+pandas
+matplotlib

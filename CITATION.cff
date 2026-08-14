@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: AntiUAVDet
+message: If you use this software, please cite it.
+type: software
+authors:
+  - name: AntiUAVDet contributors
+license: Apache-2.0
+version: 0.1.0
+date-released: "2026-08-14"
+url: https://github.com/MingJ-Zhang/AntiUAVDet

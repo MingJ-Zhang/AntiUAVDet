@@ -1,0 +1,41 @@
+__include__: [
+  './aode_deim_hgnetv2_s_fdd.yml'
+]
+
+# Single-GPU FDD run on GPU 0. Keep the original per-GPU batch size of two,
+# and scale learning rates linearly from the two-GPU/global-batch-four setup.
+output_dir: ./outputs/aode_deim_hgnetv2_s_fdd_gpu0
+print_freq: 20
+
+# The released HGNetv2-B0 stage-1 checkpoint contains LearnableAffineBlock
+# parameters. The AoDE base config omitted this flag, causing a strict-load
+# failure even though the checkpoint itself is valid.
+HGNetv2:
+  use_lab: True
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*(?:norm|bn)).*$'
+      lr: 0.00002
+    -
+      params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.0
+  lr: 0.00004
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+train_dataloader:
+  total_batch_size: 2
+  num_workers: 4
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/train/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_train.json
+
+val_dataloader:
+  total_batch_size: 4
+  num_workers: 4
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/val/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_val.json

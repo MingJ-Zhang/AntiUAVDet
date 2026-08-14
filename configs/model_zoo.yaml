@@ -1,0 +1,382 @@
+# AntiUAVDet model zoo — single source of truth.
+# Paths are relative to the repository root. Checkpoints are NOT shipped;
+# place them under weights/<id>/<dataset>.pth (or .pt for ultralytics).
+
+project: AntiUAVDet
+version: 0.1.0
+img_size: [768, 1344]
+datasets: [fdd, antiuav, dut_dve]
+
+eval:
+  score_thr: 0.001
+  max_dets_per_image: 300
+  coco7_names: [AP50:95, AP50, AP75, AP-s, AP-m, AP-l, AR100]
+
+models:
+  - id: faster_rcnn
+    display: Faster R-CNN
+    family: two-stage
+    year: 2015
+    paper: "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks"
+    paper_url: https://arxiv.org/abs/1506.01497
+    framework: mmdet
+    repo: models/mmdet_baselines
+    configs:
+      fdd: configs/faster_rcnn/faster-rcnn_r50_fpn_1x_fdd_768x1344.py
+      antiuav: configs/faster_rcnn/faster-rcnn_r50_fpn_1x_antiuav_768x1344.py
+      dut_dve: configs/dut_dve/faster-rcnn_r50_fpn_dut_dve_200e_768x1344.py
+    ckpts:
+      fdd: ../../weights/faster_rcnn/fdd.pth
+      antiuav: ../../weights/faster_rcnn/antiuav.pth
+      dut_dve: ../../weights/faster_rcnn/dut_dve.pth
+    best_epoch: {fdd: 30, antiuav: 18, dut_dve: 18}
+    params_M: 41.35
+    gflops: 207.94
+
+  - id: retinanet
+    display: RetinaNet
+    family: one-stage
+    year: 2017
+    paper: "Focal Loss for Dense Object Detection"
+    paper_url: https://arxiv.org/abs/1708.02002
+    framework: mmdet
+    repo: models/mmdet_baselines
+    configs:
+      fdd: configs/retinanet/retinanet_r50_fpn_1x_fdd_768x1344.py
+      antiuav: configs/retinanet/retinanet_r50_fpn_1x_antiuav_768x1344.py
+      dut_dve: configs/dut_dve/retinanet_r50_fpn_dut_dve_200e_768x1344.py
+    ckpts:
+      fdd: ../../weights/retinanet/fdd.pth
+      antiuav: ../../weights/retinanet/antiuav.pth
+      dut_dve: ../../weights/retinanet/dut_dve.pth
+    best_epoch: {fdd: 204, antiuav: 216, dut_dve: 43}
+    params_M: 36.33
+    gflops: 205.56
+
+  - id: detr
+    display: DETR
+    family: transformer
+    year: 2020
+    paper: "End-to-End Object Detection with Transformers"
+    paper_url: https://arxiv.org/abs/2005.12872
+    framework: mmdet
+    repo: models/mmdet_baselines
+    configs:
+      fdd: configs/detr/detr_r50_8xb2-300e_fdd_768x1344.py
+      antiuav: configs/detr/detr_r50_8xb2-300e_antiuav_768x1344.py
+      dut_dve: configs/dut_dve/detr_r50_dut_dve_200e_768x1344.py
+    ckpts:
+      fdd: ../../weights/detr/fdd.pth
+      antiuav: ../../weights/detr/antiuav.pth
+      dut_dve: ../../weights/detr/dut_dve.pth
+    best_epoch: {fdd: 240, antiuav: 220, dut_dve: 180}
+    params_M: 41.55
+    gflops: 98.21
+
+  - id: dino
+    display: DINO
+    family: transformer
+    year: 2023
+    paper: "DINO: DETR with Improved DeNoising Anchor Boxes"
+    paper_url: https://arxiv.org/abs/2203.03605
+    framework: mmdet
+    repo: models/mmdet_baselines
+    configs:
+      fdd: configs/dino/dino-4scale_r50_8xb2-300e_fdd_768x1344.py
+      antiuav: configs/dino/dino-4scale_r50_8xb2-300e_antiuav_768x1344.py
+      dut_dve: configs/dut_dve/dino-4scale_r50_dut_dve_200e_768x1344.py
+    ckpts:
+      fdd: ../../weights/dino/fdd.pth
+      antiuav: ../../weights/dino/antiuav.pth
+      dut_dve: ../../weights/dino/dut_dve.pth
+    best_epoch: {fdd: 61, antiuav: 102, dut_dve: 40}
+    params_M: 47.54
+    gflops: 281.87
+
+  - id: rtmdet
+    display: RTMDet
+    family: one-stage
+    year: 2022
+    paper: "RTMDet: An Empirical Study of Designing Real-Time Object Detectors"
+    paper_url: https://arxiv.org/abs/2212.07784
+    framework: mmdet
+    repo: models/mmdet_baselines
+    configs:
+      fdd: configs/rtmdet/rtmdet_s_8xb16-300e_fdd_768x1344.py
+      antiuav: configs/rtmdet/rtmdet_s_8xb16-300e_antiuav_768x1344.py
+      dut_dve: configs/dut_dve/rtmdet_s_dut_dve_200e_768x1344.py
+    ckpts:
+      fdd: ../../weights/rtmdet/fdd.pth
+      antiuav: ../../weights/rtmdet/antiuav.pth
+      dut_dve: ../../weights/rtmdet/dut_dve.pth
+    best_epoch: {fdd: 300, antiuav: 299, dut_dve: 46}
+    params_M: 8.86
+    gflops: 37.17
+
+  - id: remdet
+    display: RemDet-Tiny
+    family: one-stage
+    year: 2025
+    paper: "RemDet: Rethinking Efficient Information Handling for Real-time Detection"
+    paper_url: https://github.com/oaitech/RemDet
+    framework: mmdet
+    repo: models/remdet
+    pythonpath: [models/remdet]
+    configs:
+      fdd: config_remdet/remdet/remdet_tiny-300e_fdd_768x1344.py
+      antiuav: config_remdet/remdet/remdet_tiny-300e_antiuav_768x1344.py
+      dut_dve: config_remdet/remdet/remdet_tiny-200e_dutdve_768x1344.py
+    ckpts:
+      fdd: ../../weights/remdet/fdd.pth
+      antiuav: ../../weights/remdet/antiuav.pth
+      dut_dve: ../../weights/remdet/dut_dve.pth
+    best_epoch: {fdd: 219, antiuav: 255, dut_dve: 195}
+    params_M: 4.24
+    gflops: 14.11
+
+  - id: rtdetr
+    display: RT-DETR
+    family: transformer
+    year: 2023
+    paper: "DETRs Beat YOLOs on Real-time Object Detection"
+    paper_url: https://arxiv.org/abs/2304.08069
+    framework: rt-detr
+    repo: models/rtdetr
+    configs:
+      fdd: configs/rtdetr/rtdetr_r50vd_300e_fdd_768x1344.yml
+      antiuav: configs/rtdetr/rtdetr_r50vd_300e_antiuav_768x1344.yml
+      dut_dve: configs/rtdetr/rtdetr_r50vd_200e_dutdve_768x1344.yml
+    ckpts:
+      fdd: ../../weights/rtdetr/fdd.pth
+      antiuav: ../../weights/rtdetr/antiuav.pth
+      dut_dve: ../../weights/rtdetr/dut_dve.pth
+    best_epoch: {fdd: 202, antiuav: 107, dut_dve: 132}
+    infer_opts: {normalize: false}
+    params_M: 49.81
+    gflops: 164.96
+
+  - id: uavdetr
+    display: UAV-DETR
+    family: transformer
+    year: 2024
+    paper: "UAV-DETR (RT-DETR based)"
+    paper_url: https://arxiv.org/abs/2304.08069
+    framework: ultralytics
+    repo: models/uavdetr
+    pythonpath: [models/uavdetr]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dut_dve.yaml
+    ckpts:
+      fdd: ../../weights/uavdetr/fdd.pt
+      antiuav: ../../weights/uavdetr/antiuav.pt
+      dut_dve: ../../weights/uavdetr/dut_dve.pt
+    best_epoch: {fdd: 299, antiuav: 300, dut_dve: 200}
+    infer_opts: {half: false, fixed_shape: true}
+    params_M: 11.91
+    gflops: 81.68
+
+  - id: frfdet
+    display: FRFDet
+    family: one-stage
+    year: 2026
+    paper: "FRFDet: Frequency-Reconstruction-Feedback Detector for UAV"
+    framework: ultralytics
+    repo: models/frfdet
+    pythonpath: [models/frfdet]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dutdve.yaml
+    ckpts:
+      fdd: ../../weights/frfdet/fdd.pt
+      antiuav: ../../weights/frfdet/antiuav.pt
+      dut_dve: ../../weights/frfdet/dut_dve.pt
+    best_epoch: {fdd: 251, antiuav: 300, dut_dve: 200}
+    infer_opts: {half: true}
+    params_M: 2.59
+    gflops: 12.1
+
+  - id: dqef
+    display: DQEF-Net
+    family: one-stage
+    year: 2024
+    paper: "DQEF-Net"
+    framework: ultralytics
+    repo: models/dqef
+    pythonpath: [models/dqef]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dutdve.yaml
+    ckpts:
+      fdd: ../../weights/dqef/fdd.pt
+      antiuav: ../../weights/dqef/antiuav.pt
+      dut_dve: ../../weights/dqef/dut_dve.pt
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 195}
+    infer_opts: {half: true}
+    params_M: 2.99
+    gflops: 12.66
+
+  - id: dfine
+    display: D-FINE
+    family: transformer
+    year: 2024
+    paper: "D-FINE: Redefine Regression Task in DETRs as Fine-grained Distribution Refinement"
+    paper_url: https://arxiv.org/abs/2410.13842
+    framework: dfine
+    repo: models/dfine
+    configs:
+      fdd: configs/dfine/uav/dfine_hgnetv2_n_fdd_768x1344_300e.yml
+      antiuav: configs/dfine/uav/dfine_hgnetv2_n_antiuav_768x1344_300e.yml
+      dut_dve: configs/dfine/uav/dfine_hgnetv2_n_dutdve_768x1344_200e.yml
+    ckpts:
+      fdd: ../../weights/dfine/fdd.pth
+      antiuav: ../../weights/dfine/antiuav.pth
+      dut_dve: ../../weights/dfine/dut_dve.pth
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 197}
+    infer_opts: {normalize: false}
+    params_M: 3.72
+    gflops: 8.76
+
+  - id: yolov5n
+    display: YOLOv5n
+    family: one-stage
+    year: 2020
+    paper: "YOLOv5"
+    paper_url: https://github.com/ultralytics/yolov5
+    framework: ultralytics
+    repo: models/yolo
+    pythonpath: [models/yolo/src, models/yolo/third_party/yolov5]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dut_dve.yaml
+    ckpts:
+      fdd: ../../weights/yolov5n/fdd.pt
+      antiuav: ../../weights/yolov5n/antiuav.pt
+      dut_dve: ../../weights/yolov5n/dut_dve.pt
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 295}
+    infer_opts: {half: true}
+    params_M: 1.77
+    gflops: 5.26
+
+  - id: yolov8n
+    display: YOLOv8n
+    family: one-stage
+    year: 2023
+    paper: "YOLOv8"
+    paper_url: https://github.com/ultralytics/ultralytics
+    framework: ultralytics
+    repo: models/yolo
+    pythonpath: [models/yolo/src, models/yolo/third_party/ultralytics]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dut_dve.yaml
+    ckpts:
+      fdd: ../../weights/yolov8n/fdd.pt
+      antiuav: ../../weights/yolov8n/antiuav.pt
+      dut_dve: ../../weights/yolov8n/dut_dve.pt
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 186}
+    infer_opts: {half: true}
+    params_M: 3.01
+    gflops: 10.26
+
+  - id: yolo11n
+    display: YOLO11n
+    family: one-stage
+    year: 2024
+    paper: "YOLO11"
+    paper_url: https://github.com/ultralytics/ultralytics
+    framework: ultralytics
+    repo: models/yolo
+    pythonpath: [models/yolo/src, models/yolo/third_party/ultralytics]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dut_dve.yaml
+    ckpts:
+      fdd: ../../weights/yolo11n/fdd.pt
+      antiuav: ../../weights/yolo11n/antiuav.pt
+      dut_dve: ../../weights/yolo11n/dut_dve.pt
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 190}
+    infer_opts: {half: true}
+    params_M: 2.59
+    gflops: 8.23
+
+  - id: yolov13n
+    display: YOLOv13n
+    family: one-stage
+    year: 2025
+    paper: "YOLOv13: Real-Time Object Detection with Hypergraph-Enhanced Adaptive Visual Perception"
+    paper_url: https://arxiv.org/abs/2506.17733
+    framework: ultralytics
+    repo: models/yolo
+    pythonpath: [models/yolo/src, models/yolo/third_party/yolov13]
+    configs:
+      fdd: configs/dataset/fdd.yaml
+      antiuav: configs/dataset/antiuav.yaml
+      dut_dve: configs/dataset/dut_dve.yaml
+    ckpts:
+      fdd: ../../weights/yolov13n/fdd.pt
+      antiuav: ../../weights/yolov13n/antiuav.pt
+      dut_dve: ../../weights/yolov13n/dut_dve.pt
+    best_epoch: {fdd: 300, antiuav: 300, dut_dve: 299}
+    infer_opts: {half: true}
+    params_M: 2.46
+    gflops: 10.93
+
+  - id: deimv2
+    display: DEIMv2-DINOv3-M
+    family: transformer
+    year: 2025
+    paper: "DEIMv2 (DINOv3-M backbone)"
+    framework: deim
+    repo: models/deimv2
+    skip: [fdd]
+    configs:
+      antiuav: configs/deimv2/deimv2_dinov3_m_antiuav_768x1344_300e_test.yml
+      dut_dve: configs/deimv2/deimv2_dinov3_m_dutdve_768x1344_300e_test.yml
+    ckpts:
+      antiuav: ../../weights/deimv2/antiuav.pth
+      dut_dve: ../../weights/deimv2/dut_dve.pth
+    infer_opts: {normalize: true}
+    params_M: 18.05
+    gflops: 64.11
+
+  - id: deimv2-hgnetv2n
+    display: DEIMv2-HGNetv2-N
+    family: transformer
+    year: 2025
+    paper: "DEIMv2 (HGNetv2-N backbone)"
+    framework: deim
+    repo: models/deimv2
+    configs:
+      fdd: configs/deimv2/deimv2_hgnetv2_n_fdd_foggy_768x1344_300e_gpu2.yml
+      antiuav: configs/deimv2/deimv2_hgnetv2_n_antiuav_768x1344_300e_test.yml
+      dut_dve: configs/deimv2/deimv2_hgnetv2_n_dutdve_768x1344_200e_test.yml
+    ckpts:
+      fdd: ../../weights/deimv2-hgnetv2n/fdd.pth
+      antiuav: ../../weights/deimv2-hgnetv2n/antiuav.pth
+      dut_dve: ../../weights/deimv2-hgnetv2n/dut_dve.pth
+    infer_opts: {normalize: false}
+    params_M: 3.54
+    gflops: 8.46
+
+  - id: aode-deim
+    display: AoDE-DEIM
+    family: transformer
+    year: 2026
+    paper: "AoDE-DEIM: Anti-Fog Object-Decoupled DETR with Evidential Refinement for UAV"
+    framework: deim
+    repo: models/aode_deim
+    skip: [antiuav, dut_dve]
+    configs:
+      fdd: configs/aode_deim/aode_deim_hgnetv2_n_fdd_aligned_768x1344_300e.yml
+    ckpts:
+      fdd: ../../weights/aode-deim/fdd.pth
+    infer_opts: {normalize: false}
+    params_M: 3.86
+    gflops: 9.98

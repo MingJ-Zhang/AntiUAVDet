@@ -1,0 +1,15 @@
+__include__: [
+  './dfine_hgnetv2_n_antiuav_768x1344_300e.yml',
+]
+
+output_dir: ./D-FINE/outputs/dfine_hgnetv2_n_fdd_768x1344_300e
+
+train_dataloader:
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/train/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_train.json
+
+val_dataloader:
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/val/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_val.json

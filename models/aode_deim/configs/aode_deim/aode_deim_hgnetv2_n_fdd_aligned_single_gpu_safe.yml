@@ -1,0 +1,15 @@
+__include__: [
+  './aode_deim_hgnetv2_n_fdd_aligned_gpu0.yml'
+]
+
+# Recommended first run for a 24 GB GPU. The exact aligned config keeps batch 16;
+# this safe profile uses batch 8 because CFC executes a second training forward.
+output_dir: ./outputs/aode_deim_hgnetv2_n_fdd_aligned_single_gpu_safe
+
+train_dataloader:
+  total_batch_size: 8
+  num_workers: 4
+
+val_dataloader:
+  total_batch_size: 8
+  num_workers: 4

@@ -1,0 +1,7 @@
+path: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View
+train: ./UAVDETR/configs/dataset/dut_dve_lists/train.txt
+val: ./UAVDETR/configs/dataset/dut_dve_lists/val.txt
+test: ./UAVDETR/configs/dataset/dut_dve_lists/test.txt
+names:
+  0: drone
+nc: 1

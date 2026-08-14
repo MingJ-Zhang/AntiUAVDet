@@ -1,0 +1,7 @@
+# D-FINE.
+-r common.txt
+torch>=2.0.1
+torchvision
+scipy
+pyyaml
+faster-coco-eval

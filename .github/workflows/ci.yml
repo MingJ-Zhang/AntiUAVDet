@@ -1,0 +1,23 @@
+name: ci
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install glue deps
+        run: pip install PyYAML
+      - name: Layout check
+        run: python tests/test_layout.py
+      - name: CLI dry-run
+        run: |
+          pip install -e .
+          antiuavdet list
+          antiuavdet benchmark --model dfine --dataset fdd --dry-run

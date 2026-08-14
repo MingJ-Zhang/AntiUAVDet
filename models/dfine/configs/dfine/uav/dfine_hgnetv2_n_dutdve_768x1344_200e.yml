@@ -1,0 +1,18 @@
+__include__: [
+  './dfine_hgnetv2_n_fdd_768x1344_300e.yml',
+]
+
+# DUT-DVE reuses the existing Nano benchmark protocol unchanged except for
+# the requested dataset and 200-epoch training horizon.
+output_dir: ./D-FINE/outputs/dfine_hgnetv2_n_dutdve_768x1344_200e
+epochs: 200
+
+train_dataloader:
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/train
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_train2017.json
+
+val_dataloader:
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/val
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_val2017.json

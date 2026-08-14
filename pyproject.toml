@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "antiuavdet"
+version = "0.1.0"
+description = "Unified toolkit and benchmark for anti-UAV small object detection"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "AntiUAVDet contributors" }]
+keywords = ["object-detection", "uav", "anti-uav", "benchmark", "coco"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy<2.0",
+  "pycocotools>=2.0.6",
+  "PyYAML>=6.0",
+  "Pillow>=9.0",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+antiuavdet = "antiuavdet.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/MingJ-Zhang/AntiUAVDet"
+Issues = "https://github.com/MingJ-Zhang/AntiUAVDet/issues"
+
+[tool.setuptools.packages.find]
+include = ["antiuavdet*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

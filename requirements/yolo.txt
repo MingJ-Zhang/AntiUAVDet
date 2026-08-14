@@ -1,0 +1,9 @@
+# YOLO / UAV-DETR / FRFDet / DQEF-Net.
+# Each fork MUST be isolated via PYTHONPATH — never mix them in one env.
+-r common.txt
+torch>=2.0.1
+torchvision
+# ultralytics is vendored under models/*/ ; do not pip-install a conflicting version
+opencv-python
+pyyaml
+psutil

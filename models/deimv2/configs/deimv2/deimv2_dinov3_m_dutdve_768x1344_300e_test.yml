@@ -1,0 +1,17 @@
+__include__: [
+  './deimv2_dinov3_m_dutdve_768x1344_300e_gpu0.yml'
+]
+
+# Held-out DUT-DVE test evaluation using the native DEIMv2 pipeline.
+output_dir: ./outputs/deimv2_dinov3_m_dutdve_768x1344_300e_gpu0/test_eval_native_fp32
+
+val_dataloader:
+  total_batch_size: 4
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/test
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_test2017.json
+    transforms:
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: Normalize, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}

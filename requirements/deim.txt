@@ -1,0 +1,8 @@
+# DEIMv2 / AoDE-DEIM.
+-r common.txt
+torch>=2.2
+torchvision
+scipy
+pyyaml
+faster-coco-eval
+transformers

@@ -1,0 +1,7 @@
+# 由 preflight 在服务器原生磁盘创建，只读映射源图像并生成 COCO 等价 YOLO 标签。
+path: ${ANTIUAVDET_DATA}/AntiUAV_YOLO
+train: lists/train.txt
+val: lists/val.txt
+test: lists/test.txt
+names:
+  0: UAV

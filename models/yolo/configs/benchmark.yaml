@@ -1,0 +1,99 @@
+schema_version: 1
+project_root_local: /mnt/d/jinshu/uav/YOLO-FDD-Benchmark
+project_root_remote: ./YOLO-FDD-Benchmark
+dataset_root: ${ANTIUAVDET_DATA}/FDD
+dataset_view: ${ANTIUAVDET_DATA}/FDD_YOLO
+annotation_root: ${ANTIUAVDET_DATA}/FDD/annotations
+physical_gpu: 8
+class_names: [drone]
+protocol:
+  # 固定 H×W；两个维度均为 32 的整数倍，不允许训练器退化为方形输入。
+  image_size: [768, 1344]
+  batch_size: 16
+  epochs: 300
+  seed: 0
+  workers: 8
+  amp: true
+  deterministic: true
+  optimizer: AdamW
+  learning_rate: 0.0004
+  final_lr_fraction: 1.0
+  weight_decay: 0.0001
+  beta1: 0.9
+  warmup_iterations: 1000
+  warmup_momentum: 0.8
+  warmup_bias_lr: 0.1
+  patience: 300
+  save_period: 1
+  conf_threshold_eval: 0.001
+  nms_iou_threshold: 0.7
+  max_detections: 100
+  augmentation:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    degrees: 0.0
+    translate: 0.1
+    scale: 0.5
+    shear: 0.0
+    perspective: 0.0
+    flipud: 0.0
+    fliplr: 0.5
+    mosaic: 0.5
+    mixup: 0.5
+    copy_paste: 0.0
+    active_start_epoch: 4
+    active_stop_epoch: 78
+    no_aug_start_epoch: 288
+models:
+  yolov5n:
+    backend: yolov5
+    source: third_party/yolov5
+    revision: 915bbf294bb74c859f0b41f1c23bc395014ea679
+    weight: weights/pretrained/yolov5n.pt
+    environment: fdd-yolo
+  yolov8n:
+    backend: ultralytics
+    source: third_party/ultralytics
+    revision: 6340089266bfcf94d7aad2ed689a6a3db0df8883
+    weight: weights/pretrained/yolov8n.pt
+    environment: fdd-yolo
+  yolo11n:
+    backend: ultralytics
+    source: third_party/ultralytics
+    revision: 6340089266bfcf94d7aad2ed689a6a3db0df8883
+    weight: weights/pretrained/yolo11n.pt
+    environment: fdd-yolo
+  yolov13n:
+    backend: yolov13
+    source: third_party/yolov13
+    revision: 70f23ede45ee00a30cf6139c3d1ea7abe3df4eec
+    weight: weights/pretrained/yolov13n.pt
+    environment: fdd-yolo13
+reference_models:
+  deimv2_n:
+    project: ./DEIMv2-main
+    source_tree_sha256: b8ad8fb1f7b152c3d9fecd5631c58e2bd90449e34f6a5c67f575eefd03ac2f90
+    config: configs/deimv2/deimv2_hgnetv2_n_fdd_foggy.yml
+    checkpoints:
+      - outputs/deimv2_hgnetv2_n_fdd_foggy/best_stg1.pth
+      - outputs/deimv2_hgnetv2_n_fdd_foggy/best_stg2.pth
+    checkpoint_sha256:
+      outputs/deimv2_hgnetv2_n_fdd_foggy/best_stg1.pth: bd9ed7b133bc7ea7adbd5f3b82f6dbfb6ea360f82f5bcc747c318f45b1d71604
+      outputs/deimv2_hgnetv2_n_fdd_foggy/best_stg2.pth: 0cc2689abc8b007dfe769702177f3a199544997dcaef7f6d9e02a5e5a95cb2fa
+    historical_training:
+      training_wall_seconds: 52380
+      peak_gpu_memory_mib: 4372
+  aode_deim_n:
+    project: ./AoDE-DEIM-FDD
+    source_tree_sha256: 08a29aa0fec644dc29d3f3dc6b64edf45df193e688aab2a5abd1e80430e1f4fd
+    config: configs/aode_deim/aode_deim_hgnetv2_n_fdd_aligned_gpu0.yml
+    checkpoints:
+      - outputs/aode_deim_hgnetv2_n_fdd_aligned_gpu0/best_stg1.pth
+      - outputs/aode_deim_hgnetv2_n_fdd_aligned_gpu0/best_stg2.pth
+    checkpoint_sha256:
+      outputs/aode_deim_hgnetv2_n_fdd_aligned_gpu0/best_stg1.pth: 47f1056367ae8582516c6f5ee782c23ddc3025d1b86f7e34ea28cb0bfb2a93ed
+      outputs/aode_deim_hgnetv2_n_fdd_aligned_gpu0/best_stg2.pth: 84e7e6bd0b2c0b0d69388129f961c691a26e07df6054183349a08bfd9c3dd5b3
+    historical_training:
+      training_wall_seconds: 57240
+      peak_gpu_memory_mib: 8622

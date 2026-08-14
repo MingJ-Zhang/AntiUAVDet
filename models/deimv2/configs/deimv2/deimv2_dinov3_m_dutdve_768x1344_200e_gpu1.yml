@@ -1,0 +1,10 @@
+__include__: [
+  './deimv2_dinov3_m_dutdve_768x1344_300e_gpu0.yml'
+]
+
+# Keep the established DUT-DVE DINOv3-M recipe and change only the requested
+# training horizon/output identity. Disable periodic full checkpoints so the
+# run retains the rolling last checkpoint plus validation-selected best weight.
+output_dir: ./outputs/deimv2_dinov3_m_dutdve_768x1344_200e_gpu1
+epoches: 200
+checkpoint_freq: 1000

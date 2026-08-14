@@ -1,0 +1,24 @@
+__include__: [
+  './rtdetr_r50vd_300e_antiuav_768x1344.yml',
+]
+
+# Keep the established one-class R50-vd 768x1344 benchmark recipe. Only the
+# dataset, requested 200-epoch horizon, output directory, and bounded
+# checkpoint-retention mode differ.
+output_dir: ./RT-DETR/outputs/rtdetr_r50vd_200e_dutdve_768x1344
+
+epoches: 200
+checkpoint_mode: best_last
+best_metric: coco_eval_bbox
+accumulation_steps: 2
+
+train_dataloader:
+  batch_size: 8
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/train
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_train2017.json
+
+val_dataloader:
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/images/val
+    ann_file: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View/annotations/instances_val2017.json

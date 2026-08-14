@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/MingJ-Zhang/AntiUAVDet#readme
+    about: Read the README before opening an issue

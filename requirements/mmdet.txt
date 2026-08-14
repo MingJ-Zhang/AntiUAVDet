@@ -1,0 +1,9 @@
+# MMDetection family (Faster R-CNN, RetinaNet, DETR, DINO, RTMDet, RemDet).
+# Isolated conda env recommended: python 3.10
+-r common.txt
+torch==2.2.2
+torchvision==0.17.2
+mmengine
+mmcv==2.2.0
+mmdet==3.3.0
+openmim

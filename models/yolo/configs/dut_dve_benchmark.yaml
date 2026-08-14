@@ -1,0 +1,91 @@
+schema_version: 1
+project_root_local: /mnt/d/jinshu/uav/YOLO-FDD-Benchmark
+project_root_remote: ./YOLO-FDD-Benchmark
+experiment_root_remote: ./YOLO-FDD-Benchmark/experiments/dut_dve_formal
+dataset_root: ${ANTIUAVDET_DATA}/DUT-Dve
+dataset_view: ${ANTIUAVDET_DATA}/DUT-Dve_YOLO_Benchmark_View
+annotation_root: ./YOLO-FDD-Benchmark/experiments/dut_dve_formal/annotations
+annotation_pattern: instances_{split}.json
+yolov5_annotation_alias_pattern: instances_{split}2017.json
+dataset_yaml: configs/dataset/dut_dve.yaml
+yolov5_hyp: configs/yolov5_hyp_dut_dve.yaml
+generate_coco_from_yolo: true
+audit_exact_duplicates: true
+dataset_layout:
+  images: images/{split}
+  labels: labels/{split}
+  materialize_labels: true
+dataset_repairs:
+  # 原始 val/00611.txt 第 1 行的 box height=0；只在派生视图删除，源数据只读。
+  drop_non_positive_boxes: true
+  # 24 个框仅因六位小数取整超出边界不到 2 像素；在派生视图裁到图像边界。
+  clip_out_of_bounds_boxes: true
+dataset_expected:
+  train: {images: 5200, annotations: 5243, empty: 3}
+  val: {images: 1600, annotations: 1615, empty: 0}
+  test: {images: 1200, annotations: 1227, empty: 0}
+physical_gpu: 2
+class_names: [drone]
+protocol:
+  image_size: [768, 1344]
+  batch_size: 16
+  epochs: 300
+  seed: 0
+  workers: 8
+  amp: true
+  deterministic: true
+  optimizer: AdamW
+  learning_rate: 0.0004
+  final_lr_fraction: 1.0
+  weight_decay: 0.0001
+  beta1: 0.9
+  warmup_iterations: 1000
+  warmup_momentum: 0.8
+  warmup_bias_lr: 0.1
+  patience: 300
+  save_period: 1
+  conf_threshold_eval: 0.001
+  nms_iou_threshold: 0.7
+  max_detections: 100
+  augmentation:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    degrees: 0.0
+    translate: 0.1
+    scale: 0.5
+    shear: 0.0
+    perspective: 0.0
+    flipud: 0.0
+    fliplr: 0.5
+    mosaic: 0.5
+    mixup: 0.5
+    copy_paste: 0.0
+    active_start_epoch: 4
+    active_stop_epoch: 78
+    no_aug_start_epoch: 288
+models:
+  yolov5n:
+    backend: yolov5
+    source: third_party/yolov5
+    revision: 915bbf294bb74c859f0b41f1c23bc395014ea679
+    weight: weights/pretrained/yolov5n.pt
+    environment: fdd-yolo
+  yolov8n:
+    backend: ultralytics
+    source: third_party/ultralytics
+    revision: 6340089266bfcf94d7aad2ed689a6a3db0df8883
+    weight: weights/pretrained/yolov8n.pt
+    environment: fdd-yolo
+  yolo11n:
+    backend: ultralytics
+    source: third_party/ultralytics
+    revision: 6340089266bfcf94d7aad2ed689a6a3db0df8883
+    weight: weights/pretrained/yolo11n.pt
+    environment: fdd-yolo
+  yolov13n:
+    backend: yolov13
+    source: third_party/yolov13
+    revision: 70f23ede45ee00a30cf6139c3d1ea7abe3df4eec
+    weight: weights/pretrained/yolov13n.pt
+    environment: fdd-yolo13

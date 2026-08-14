@@ -1,0 +1,15 @@
+# DUT-DVE — single class `drone`. COCO view generated from YOLO labels.
+name: dut_dve
+class_name: drone
+category_id: 0
+img_size: [768, 1344]
+keep_ratio: false
+test_images: 1200
+layout:
+  root: DUT-Dve_YOLO_Benchmark_View
+  train_images: images/train
+  val_images: images/val
+  test_images: images/test
+  train_ann: annotations/instances_train2017.json
+  val_ann: annotations/instances_val2017.json
+  test_ann: annotations/instances_test2017.json

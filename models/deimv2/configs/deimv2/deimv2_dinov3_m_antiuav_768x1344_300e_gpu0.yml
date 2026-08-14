@@ -1,0 +1,90 @@
+__include__: [
+  './deimv2_dinov3_m_coco.yml'
+]
+
+# Official DEIMv2-M (ViT-Tiny+ distilled from DINOv3-S), tuned on Anti-UAV.
+output_dir: ./outputs/deimv2_dinov3_m_antiuav_768x1344_300e_gpu0_seed0
+print_freq: 20
+
+num_classes: 1
+remap_mscoco_category: False
+eval_spatial_size: [768, 1344]
+
+# The full COCO detector checkpoint is loaded with -t, so a second backbone
+# checkpoint is neither needed nor allowed to silently override it.
+DINOv3STAs:
+  weights_path: ~
+
+# Batch 16 matches the Anti-UAV HGNetv2-N baseline. Scale the official
+# batch-32 M learning rates and sample-based EMA schedule by two.
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*.dinov3)(?!.*(?:norm|bn|bias)).*$'
+      lr: 0.0000125
+    -
+      params: '^(?=.*.dinov3)(?=.*(?:norm|bn|bias)).*$'
+      lr: 0.0000125
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:sta|encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+  lr: 0.00025
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+ema:
+  decay: 0.99995
+  warmups: 2000
+
+lr_warmup_scheduler:
+  warmup_duration: 2000
+
+warmup_iter: 2000
+epoches: 300
+flat_epoch: 146
+no_aug_epoch: 23
+
+train_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/train/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_train.json
+    transforms:
+      ops:
+        - {type: Mosaic, output_size: [384, 672], rotation_range: 10, translation_range: [0.1, 0.1], scaling_range: [0.5, 1.5], probability: 1.0, fill_value: 0, use_cache: True, max_cached_images: 50, random_pop: True}
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [768, 1344]}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: Normalize, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      policy:
+        epoch: [4, 146, 278]
+        ops: ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+      mosaic_prob: 0.5
+  collate_fn:
+    base_size_repeat: ~
+    mixup_epochs: [4, 146]
+    stop_epoch: 278
+    copyblend_epochs: [4, 146]
+
+val_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/antiuav/val/val/img
+    ann_file: ${ANTIUAVDET_DATA}/antiuav/annotations/instances_val.json
+    transforms:
+      ops:
+        - {type: Resize, size: [768, 1344]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: Normalize, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
+
+DEIMCriterion:
+  matcher:
+    matcher_change_epoch: 255

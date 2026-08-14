@@ -1,0 +1,101 @@
+__include__: [
+  '../dataset/custom_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_n_fdd_foggy
+print_freq: 20
+
+num_classes: 1
+remap_mscoco_category: False
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  use_lab: True
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+  expansion: 0.34
+  depth_mult: 0.5
+  version: 'dfine'
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+  num_layers: 3
+  eval_idx: -1
+  dim_feedforward: 512
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0002
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0002
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+  lr: 0.0004
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+ema:
+  decay: 0.99995
+  warmups: 2000
+
+lr_warmup_scheduler:
+  warmup_duration: 1000
+
+epoches: 160
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+train_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/train/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_train.json
+    transforms:
+      policy:
+        epoch: [4, 78, 148]
+  collate_fn:
+    ema_restart_decay: 0.99995
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+val_dataloader:
+  total_batch_size: 16
+  dataset:
+    img_folder: ${ANTIUAVDET_DATA}/FDD/val/foggy
+    ann_file: ${ANTIUAVDET_DATA}/FDD/annotations/instances_foggy_val.json
+
+DEIMCriterion:
+  matcher:
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

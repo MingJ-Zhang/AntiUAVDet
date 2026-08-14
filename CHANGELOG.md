@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 — 2026-08-14
+
+- Drop DEIMv2-DINOv3-M, DEIMv2-HGNetv2-N, and AoDE-DEIM from published benchmark tables.
+
 ## 0.1.0 — 2026-08-14
 
 - Initial public layout: 18 detectors, 3 datasets, unified CLI.

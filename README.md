@@ -101,7 +101,7 @@ Params / FLOPs at `768×1344` (mmengine MACs). Test-set `AP50:95`.
 | RetinaNet | mmdet | 36.33 | 205.56 | 49.83 | 68.91 | 54.96 |
 | DETR | mmdet | 41.55 | 98.21 | 44.57 | 63.24 | 47.90 |
 | DINO | mmdet | 47.54 | 281.87 | 52.94 | 72.87 | 59.22 |
-| RTMDet | mmdet | 8.86 | 37.17 | 53.63 | 75.80 | 60.27 |
+| RTMDet | mmdet | 8.86 | 37.17 | 53.63 | **75.80** | 60.27 |
 | RemDet-Tiny | mmdet | 4.24 | 14.11 | 52.97 | 71.53 | 58.78 |
 | RT-DETR | rt-detr | 49.81 | 164.96 | 52.81 | 72.29 | 59.20 |
 | UAV-DETR | ultralytics | 11.91 | 81.68 | 52.62 | 70.73 | 54.64 |
@@ -111,10 +111,7 @@ Params / FLOPs at `768×1344` (mmengine MACs). Test-set `AP50:95`.
 | YOLOv5n | ultralytics | 1.77 | 5.26 | 50.84 | 70.84 | 58.11 |
 | YOLOv8n | ultralytics | 3.01 | 10.26 | 53.04 | 72.94 | 61.04 |
 | YOLO11n | ultralytics | 2.59 | 8.23 | 54.05 | 73.69 | 61.57 |
-| YOLOv13n | ultralytics | 2.46 | 10.93 | 54.29 | 73.00 | 61.65 |
-| DEIMv2-DINOv3-M | deim | 18.05 | 64.11 | — | **78.50** | **65.42** |
-| DEIMv2-HGNetv2-N | deim | 3.54 | 8.46 | 54.06 | 76.18 | 63.80 |
-| AoDE-DEIM | deim | 3.86 | 9.98 | **56.43** | — | — |
+| YOLOv13n | ultralytics | 2.46 | 10.93 | **54.29** | 73.00 | **61.65** |
 
 Full tables: [`docs/results/`](docs/results/).
 

@@ -24,6 +24,12 @@ AntiUAVDet packages the detectors used in a three-dataset anti-UAV benchmark beh
 
 Weights are **not** shipped. Place your own checkpoints under `weights/` (see [`weights/README.md`](weights/README.md)).
 
+## Background
+
+Unauthorized UAVs threaten airports, critical infrastructure, and public events. A counter-UAV system starts with detection, yet the targets are often tiny, distant, and washed out by weather or clutter. This repository is a unified benchmark toolkit for that setting.
+
+Our own detector is released separately: **[EviResolveNet](https://github.com/MingJ-Zhang/EviResolveNet)**.
+
 ## Highlights
 
 - **One command surface.** `antiuavdet list | predict | train | eval | benchmark`

@@ -24,6 +24,12 @@ AntiUAVDet 把反无人机对比实验里用到的检测器收进同一个命令
 
 **不随仓库提供权重。** 请把自行训练或下载的 checkpoint 放到 `weights/`（见 [`weights/README.md`](weights/README.md)）。
 
+## 背景
+
+未授权无人机对机场、关键设施和大型活动构成安全风险。反无人机系统的第一步是可靠检测，但目标往往很小、很远，还容易被天气和背景干扰。本仓库提供统一协议下的对比工具箱。
+
+我们自己的检测模型单独发布：**[EviResolveNet](https://github.com/MingJ-Zhang/EviResolveNet)**。
+
 ## 亮点
 
 - **统一入口：** `antiuavdet list | predict | train | eval | benchmark`
